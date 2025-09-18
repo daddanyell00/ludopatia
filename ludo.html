@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora de Perdas — Conscientização do Vício em Apostas</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#fff8f6;color:#222;}
+  header{background:#b91c1c;color:#fff;padding:16px;text-align:center;}
+  header h1{margin:0;font-size:22px}
+  header p{margin:6px 0 0;font-size:14px}
+  .container{max-width:900px;margin:20px auto;padding:16px}
+  .card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 4px 10px rgba(0,0,0,.08);margin-bottom:20px}
+  label{display:block;font-size:14px;margin-bottom:6px;font-weight:bold}
+  input,select{width:100%;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px}
+  .row{display:flex;flex-wrap:wrap;gap:12px}
+  .col{flex:1;min-width:180px}
+  .btn{background:#b91c1c;color:#fff;padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+  .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .result-card{background:#fff4f0;border-left:4px solid #b91c1c;border-radius:6px;padding:10px}
+  .result-card .big{font-size:20px;font-weight:bold}
+  .result-card .small{font-size:13px;color:#555}
+  canvas{max-width:100%}
+  footer{background:#fef2f2;padding:16px;text-align:center;font-size:14px;color:#333;border-top:2px solid #b91c1c}
+  a{color:#b91c1c;font-weight:bold;text-decoration:none}
+  a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎰 Apostas e Saúde Mental</h1>
+  <p>Esta calculadora mostra quanto você pode perder em máquinas caça-níqueis. O “ganho fácil” quase sempre vira prejuízo.</p>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Preencha os dados</h2>
+    <div class="row">
+      <div class="col">
+        <label for="bankroll">Valor inicial / Bankroll (R$)</label>
+        <input id="bankroll" type="number" value="500">
+      </div>
+      <div class="col">
+        <label for="bet">Valor médio por aposta (R$)</label>
+        <input id="bet" type="number" value="2">
+      </div>
+      <div class="col">
+        <label for="spinsSession">Rodadas por sessão</label>
+        <input id="spinsSession" type="number" value="100">
+      </div>
+      <div class="col">
+        <label for="sessionsPerWeek">Sessões por semana</label>
+        <input id="sessionsPerWeek" type="number" value="3">
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div class="col">
+        <label for="rtp">RTP da Slot (%)</label>
+        <select id="rtp">
+          <option value="85">85% (alta perda)</option>
+          <option value="90">90%</option>
+          <option value="92" selected>92% (comum)</option>
+          <option value="95">95%</option>
+        </select>
+      </div>
+      <div class="col">
+        <label>&nbsp;</label>
+        <button class="btn" id="calcBtn">Calcular</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Resultados estimados</h2>
+    <div class="results">
+      <div class="result-card"><div class="small">Perda por aposta</div><div class="big" id="lossPerBet">R$ 0,00</div></div>
+      <div class="result-card"><div class="small">Perda por sessão</div><div class="big" id="lossPerSession">R$ 0,00</div></div>
+      <div class="result-card"><div class="small">Perda por semana</div><div class="big" id="lossPerWeek">R$ 0,00</div></div>
+      <div class="result-card"><div class="small">Perda por mês</div><div class="big" id="lossPerMonth">R$ 0,00</div></div>
+      <div class="result-card"><div class="small">Perda por ano</div><div class="big" id="lossPerYear">R$ 0,00</div></div>
+    </div>
+    <canvas id="chart" width="800" height="300"></canvas>
+    <p style="font-size:13px;color:#555;margin-top:8px">📉 Fórmula usada: <em>perda por aposta = valor × (1 − RTP)</em>.  
+    Slots devolvem em média só 85%–95% do dinheiro investido. A casa sempre ganha.</p>
+  </div>
+</div>
+
+<footer>
+  <p>⚠️ Se você sente que perdeu o controle, <strong>procure ajuda</strong>:</p>
+  <p>👉 <a href="https://www.jogadoresanonimos.org.br" target="_blank">Jogadores Anônimos</a> | 
+     👉 CAPS (Centros de Atenção Psicossocial) | 
+     👉 CVV 188 (apoio emocional gratuito)</p>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+function format(v){return "R$ "+(v.toFixed(2)).replace(".",",");}
+function calc(){
+  const bet=+($("bet").value||0);
+  const spins=+($("spinsSession").value||0);
+  const sessions=+($("sessionsPerWeek").value||0);
+  const rtp=(+$("rtp").value||92)/100;
+  const lossPerBet=bet*(1-rtp);
+  const lossPerSession=lossPerBet*spins;
+  const lossPerWeek=lossPerSession*sessions;
+  const lossPerMonth=lossPerWeek*4.33;
+  const lossPerYear=lossPerWeek*52;
+  $("lossPerBet").textContent=format(lossPerBet);
+  $("lossPerSession").textContent=format(lossPerSession);
+  $("lossPerWeek").textContent=format(lossPerWeek);
+  $("lossPerMonth").textContent=format(lossPerMonth);
+  $("lossPerYear").textContent=format(lossPerYear);
+  drawChart([lossPerSession,lossPerWeek,lossPerMonth,lossPerYear]);
+}
+function drawChart(values){
+  const c=$("chart"),ctx=c.getContext("2d");
+  ctx.clearRect(0,0,c.width,c.height);
+  const labels=["Sessão","Semana","Mês","Ano"];
+  const max=Math.max(...values)*1.2;
+  const barW=100,gap=40;
+  values.forEach((v,i)=>{
+    const h=(v/max)*(c.height-60);
+    ctx.fillStyle="#dc2626";
+    ctx.fillRect(60+i*(barW+gap),c.height-40-h,barW,h);
+    ctx.fillStyle="#333";
+    ctx.fillText(labels[i],70+i*(barW+gap),c.height-20);
+    ctx.fillText("R$"+v.toFixed(0),70+i*(barW+gap),c.height-50-h);
+  });
+}
+$("calcBtn").addEventListener("click",calc);
+calc();
+</script>
+</body>
+</html>
